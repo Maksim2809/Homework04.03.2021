@@ -1,0 +1,3 @@
+Сергей Маклецов, [17.02.21 14:05]
+private fun isServerConnected() = 
+        !(NetworkRequests.lastSuccessfulRequest != 0L) && (NetworkRequests.lastSuccessfulRequest - System.currentTimeMillis() > periodSendRequest * 2)

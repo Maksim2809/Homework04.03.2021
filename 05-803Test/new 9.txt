@@ -1,0 +1,58 @@
+#include <iostream>
+#include "queue.h"
+#include "tree.h"
+
+using namespace std;
+
+//����������� ��������� ������, �������������� ����������� � ������� 
+void showTreeQueue(queue tq)
+{
+	//���� ���� �������� � �������
+	while (tq.size > 0)
+	{
+		node* n;
+		//�������� ������� � ������� ��� �� �������
+		auto got = dequeue(tq, n);
+		if (got) {
+			//���� ������� �������� �������, ������� ���� ��������
+			//� ����� ��� ���������� � ������
+			if (n) cout << n->value << "(*"
+				<< n->count << ")";
+			//����� ������� �������
+			else   cout << "-";
+		}
+		//��������� �������� ��������� ��� ������
+		//������ ����� ������ ����� ���������� ��������
+		cout << (tq.size > 0 ? " " : "\n");
+	}
+}
+
+void main()
+{
+	setlocale(LC_ALL, "Rus");
+	//Вспомогательный массив, содержащий элементы, который будут помещены в дерево
+	int arr[] = { 5, 2, 8, 1, 4, 0, 6, 9, 10,
+			  7, 1, 1, 7, 7, 0, 4, 5, 5, 10 };
+	auto sz = sizeof(arr) / sizeof(arr[0]);
+	tree tree;
+	for (auto i = 0; i < sz; i++)
+	{
+		addToTree(tree, arr[i]);
+	}
+	//Выполняем инфиксный обход
+	cout << "INFIX (LNR) TRAVERSE\n";
+	queue q_in = infix_traverse(tree);
+	showTreeQueue(q_in);
+	//Выполняем префиксный обход
+	cout << "PREFIX (NLR) TRAVERSE\n";
+	queue q_pr = prefix_traverse(tree);
+	showTreeQueue(q_pr);
+	//Выполняем постфиксный обход
+	cout << "POSTFIX (LRN) TRAVERSE\n";
+	queue q_pt = postfix_traverse(tree);
+	showTreeQueue(q_pt);
+	findInTree(tree, 1); //3
+	findInTree(tree, 5); //0 - элемент "5" уже удален
+	dropTree(tree);
+	system("pause");
+}
