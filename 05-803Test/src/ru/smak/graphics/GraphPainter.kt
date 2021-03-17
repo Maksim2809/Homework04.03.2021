@@ -2,8 +2,10 @@ package ru.smak.graphics
 
 import java.awt.*
 import java.awt.geom.AffineTransform
-import java.util.Collections.rotate
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 
 class GraphPainter(
         val graph: MutableList<MutableList<Double>>
@@ -11,6 +13,7 @@ class GraphPainter(
 
     private var width = 1
     private var height = 1
+    private var psi = 0.0
     var thickness = 1
         set(value) {
             if (value >=1 && value <= 30) {
@@ -43,7 +46,6 @@ class GraphPainter(
 
     private val radius: Int
         get() = minSz / 2
-
 
     private val center: Point
         get() = Point(rect.x + radius, rect.y + radius)
@@ -97,7 +99,7 @@ class GraphPainter(
 
     private fun paintP(g:Graphics){
         (g as Graphics2D).apply {
-            rotate( PI/2 , center.x.toDouble(), center.y.toDouble())
+            rotate( PI/2  , center.x.toDouble(), center.y.toDouble())
             (g as Graphics2D).apply {
                 graph.forEachIndexed { fromInd, from ->
                     from.takeLast(graph.size - fromInd - 1)
@@ -105,14 +107,23 @@ class GraphPainter(
                                 if (weight > 1e-20) {
                                     vertexPositions?.let { vPos ->
                                         val toI = toInd + fromInd + 1
-                                        val fi = Math.abs(Math.atan(
-                                                ( vPos[toI].y - vPos[fromInd].y).toDouble()/(vPos[toI].x- vPos[fromInd].x + vPos[toI].x).toDouble()
-                                        )) + PI/2
-                                        g.rotate( fi, ((vPos[fromInd].x + vPos[toI].x)/2+ 2).toDouble(), ((vPos[fromInd].y + vPos[toI].y)/2 -2).toDouble())
+                                        var fi = Math.atan(
+                                                ( vPos[toI].y - vPos[fromInd].y).toDouble()/(vPos[toI].x- vPos[fromInd].x ).toDouble()
+                                        )
+                                        if (fi>0){
+                                            fi = PI/2 - fi
+                                        }
+                                        else{
+                                            fi = PI + fi
+                                        }
+                                        val orig: AffineTransform = g.getTransform()
+                                        g.rotate( fi, ((vPos[fromInd].x + vPos[toI].x)/2).toDouble(), ((vPos[fromInd].y + vPos[toI].y)/2 ).toDouble())
                                         g.drawString( graph[fromInd][toI].toInt().toString() ,
                                                 (vPos[fromInd].x + vPos[toI].x)/2+ 2,
                                                 (vPos[fromInd].y + vPos[toI].y)/2 - 4)
-                                        g.rotate( -fi, ((vPos[fromInd].x + vPos[toI].x)/2+ 2).toDouble(), ((vPos[fromInd].y + vPos[toI].y)/2 -2).toDouble())
+                                        //,((vPos[fromInd].x + vPos[toI].x)/2+ 2).toDouble(), ((vPos[fromInd].y + vPos[toI].y)/2 -2).toDouble()
+                                        g.setTransform(orig);
+
                                     }
                                 }
                             }
